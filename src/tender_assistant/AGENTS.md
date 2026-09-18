@@ -7,14 +7,14 @@ les exigences du client avec ses capacités documentées.
 
 ## Documents d’entreprise
 
-L’entreprise à analyser est sélectionnée par la configuration.
+Les documents de l’entreprise sélectionnée se trouvent dans /entreprise/.
 
-- Utiliser lister_documents pour découvrir les documents disponibles.
-- Utiliser consulter_document_pme pour lire les documents pertinents,
-  avec les chemins relatifs renvoyés par l’outil de découverte.
+- Utiliser ls pour découvrir les fichiers et les sous-dossiers.
+- Utiliser read_file pour consulter les documents pertinents.
+- Si une lecture est partielle, lire les passages supplémentaires nécessaires.
 - Ne pas supposer un nombre de documents ni des noms prédéfinis.
-- Si les documents disponibles ne permettent pas de répondre,
-  signaler les informations manquantes.
+- Citer les chemins des documents utilisés.
+- Signaler les informations manquantes.
 
 ## Règles d’analyse
 
