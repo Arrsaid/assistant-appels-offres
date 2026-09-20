@@ -8,6 +8,75 @@ from tender_assistant.agent import creer_agent
 from tender_assistant.tools.documents import lire_document, obtenir_dossier_entreprise
 
 
+def obtenir_tache(mode: str) -> tuple[str, str] | None:
+    taches = {
+        "consultation": (
+            (
+                "Analyse la consultation sélectionnée. "
+                "Commence par lire intégralement le skill "
+                "/skills/analyse-consultation/SKILL.md avec read_file, "
+                "puis applique sa méthode. "
+                "Pour cette tâche, consulte uniquement les documents "
+                "sous /consultation/, sans lire ceux de /entreprise/. "
+                "Si le skill est inaccessible, signale le problème "
+                "au lieu de produire l'analyse."
+            ),
+            "analyse_consultation.md",
+        ),
+        "entreprise": (
+            (
+                "Réalise une synthèse de l’entreprise sélectionnée. "
+                "Commence par lire intégralement le skill "
+                "/skills/resume-entreprise/SKILL.md avec read_file, "
+                "puis applique sa méthode. "
+                "Pour cette tâche, consulte uniquement les documents "
+                "sous /entreprise/, sans lire ceux de /consultation/. "
+                "Si le skill est inaccessible, signale le problème "
+                "au lieu de produire la synthèse."
+            ),
+            "resume_entreprise.md",
+        ),
+        "comparaison": (
+            (
+                "Compare l’entreprise sélectionnée à la consultation sélectionnée. "
+                "Commence par lire intégralement le skill "
+                "/skills/comparaison-entreprise-consultation/SKILL.md "
+                "avec read_file, puis applique sa méthode. "
+                "Consulte les documents sous /consultation/ et sous /entreprise/. "
+                "Ne prends pas la décision de répondre à la consultation. "
+                "Si le skill est inaccessible, signale le problème "
+                "au lieu de produire la comparaison."
+            ),
+            "comparaison_entreprise_consultation.md",
+        ),
+    }
+
+    return taches.get(mode)
+
+
+def demander_mode() -> str:
+    choix_vers_mode = {
+        "1": "consultation",
+        "2": "entreprise",
+        "3": "comparaison",
+    }
+
+    print("\nQue souhaitez-vous faire ?")
+    print("1. Analyser une consultation")
+    print("2. Synthétiser une entreprise")
+    print("3. Comparer une entreprise à une consultation")
+
+    while True:
+        choix = input("\nVotre choix (1, 2 ou 3) : ").strip()
+
+        mode = choix_vers_mode.get(choix)
+
+        if mode:
+            return mode
+
+        print("Choix invalide. Saisissez 1, 2 ou 3.")
+
+
 def main() -> None:
 
     racine_projet = Path(__file__).resolve().parents[2]
@@ -18,6 +87,15 @@ def main() -> None:
         return
 
     print("Clé OpenAI chargée.")
+
+    mode = demander_mode()
+    tache = obtenir_tache(mode)
+
+    if tache is None:
+        print(f"Mode inconnu : {mode}")
+        return
+
+    message_utilisateur, nom_fichier_sortie = tache
 
     dossier = racine_projet / "data" / "synthetic" / "companies" / "pme_a" / "documents"
 
@@ -100,16 +178,7 @@ def main() -> None:
             "messages": [
                 {
                     "role": "user",
-                    "content": (
-                        "Compare l’entreprise sélectionnée à la consultation sélectionnée. "
-                        "Commence par lire intégralement le skill "
-                        "/skills/comparaison-entreprise-consultation/SKILL.md avec read_file, "
-                        "puis applique sa méthode. "
-                        "Consulte les documents sous /consultation/ et sous /entreprise/. "
-                        "Ne prends pas la décision de répondre à la consultation. "
-                        "Si le skill est inaccessible, signale le problème "
-                        "au lieu de produire la comparaison."
-                    ),
+                    "content": message_utilisateur,
                 }
             ],
         }
@@ -131,7 +200,9 @@ def main() -> None:
 
     # fichier_resume = dossier_sortie / "analyse_consultation.md"
     # fichier_resume = dossier_sortie / "resume_entreprise.md"
-    fichier_resume = dossier_sortie / "comparaison_entreprise_consultation.md"
+    # fichier_resume = dossier_sortie / "comparaison_entreprise_consultation.md"
+    fichier_resume = dossier_sortie / nom_fichier_sortie
+
     fichier_resume.write_text(resume, encoding="utf-8")
 
     print(f"\nRésumé enregistré dans : {fichier_resume}")
