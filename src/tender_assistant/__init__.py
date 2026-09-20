@@ -101,14 +101,14 @@ def main() -> None:
                 {
                     "role": "user",
                     "content": (
-                        "Analyse la consultation sélectionnée. "
+                        "Compare l’entreprise sélectionnée à la consultation sélectionnée. "
                         "Commence par lire intégralement le skill "
-                        "/skills/analyse-consultation/SKILL.md avec read_file, "
+                        "/skills/comparaison-entreprise-consultation/SKILL.md avec read_file, "
                         "puis applique sa méthode. "
-                        "Pour cette tâche, consulte uniquement les documents "
-                        "sous /consultation/, sans lire ceux de /entreprise/. "
+                        "Consulte les documents sous /consultation/ et sous /entreprise/. "
+                        "Ne prends pas la décision de répondre à la consultation. "
                         "Si le skill est inaccessible, signale le problème "
-                        "au lieu de produire l'analyse."
+                        "au lieu de produire la comparaison."
                     ),
                 }
             ],
@@ -129,8 +129,9 @@ def main() -> None:
     dossier_sortie = racine_projet / "outputs"
     dossier_sortie.mkdir(exist_ok=True)
 
-    fichier_resume = dossier_sortie / "analyse_consultation.md"
-    # fichier_resume = dossier_sortie / "resume_pme_a.md"
+    # fichier_resume = dossier_sortie / "analyse_consultation.md"
+    # fichier_resume = dossier_sortie / "resume_entreprise.md"
+    fichier_resume = dossier_sortie / "comparaison_entreprise_consultation.md"
     fichier_resume.write_text(resume, encoding="utf-8")
 
     print(f"\nRésumé enregistré dans : {fichier_resume}")
