@@ -101,23 +101,26 @@ def main() -> None:
                 {
                     "role": "user",
                     "content": (
-                        "Analyse la consultation sélectionnée : présente le besoin, "
-                        "les exigences, le budget, le calendrier et les points "
-                        "à clarifier, avec leurs sources. "
-                        "Ne compare pas encore avec l'entreprise."
+                        "Analyse la consultation sélectionnée. "
+                        "Commence par lire intégralement le skill "
+                        "/skills/analyse-consultation/SKILL.md avec read_file, "
+                        "puis applique sa méthode. "
+                        "Pour cette tâche, consulte uniquement les documents "
+                        "sous /consultation/, sans lire ceux de /entreprise/. "
+                        "Si le skill est inaccessible, signale le problème "
+                        "au lieu de produire l'analyse."
                     ),
                 }
             ],
         }
     )
-
-    # print("\nAppels d’outils effectués :")
-
-    # for message in resultat["messages"]:
-    #     for appel in getattr(message, "tool_calls", []):
-    #         print(appel["name"], appel["args"])
-
     resume = resultat["messages"][-1].content
+
+    print("\nAppels d’outils effectués :")
+
+    for message in resultat["messages"]:
+        for appel in getattr(message, "tool_calls", []):
+            print(appel["name"], appel["args"])
 
     # print("\nRésumé de la PME :")
     # print(resume)
@@ -126,7 +129,8 @@ def main() -> None:
     dossier_sortie = racine_projet / "outputs"
     dossier_sortie.mkdir(exist_ok=True)
 
-    fichier_resume = dossier_sortie / "resume_pme_a.md"
+    fichier_resume = dossier_sortie / "analyse_consultation.md"
+    # fichier_resume = dossier_sortie / "resume_pme_a.md"
     fichier_resume.write_text(resume, encoding="utf-8")
 
     print(f"\nRésumé enregistré dans : {fichier_resume}")

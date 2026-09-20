@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 
 
 def creer_agent(instructions: str, nom_modele: str):
-    modele = ChatOpenAI(model=nom_modele)
+    modele = ChatOpenAI(model=nom_modele, reasoning_effort="none")
 
     agent = create_deep_agent(
         model=modele,

@@ -1,0 +1,137 @@
+{
+  "synthetic": true,
+  "version": "1.0",
+  "as_of": "2026-09-18",
+  "id": "pme_a",
+  "name": "PME A — Atelier Portail (nom de scénario)",
+  "city": "Lyon",
+  "creation_year": 2019,
+  "headcount": 12,
+  "revenue_2025_eur": 1320000,
+  "focus": "Portails clients et applications métier sur mesure",
+  "stack": "Symfony, PHP, Vue.js, PostgreSQL, API REST, Docker",
+  "support_hours": "Du lundi au vendredi, 9 h–18 h, heure de Paris, hors jours fériés français",
+  "critical_acknowledgement": "4 heures de service",
+  "certifications": [],
+  "roles": [
+    {
+      "role": "Direction et commercial",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 0,
+        "2026-11": 0,
+        "2026-12": 0
+      }
+    },
+    {
+      "role": "Chef de projet",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 8,
+        "2026-11": 10,
+        "2026-12": 10
+      }
+    },
+    {
+      "role": "Développeur",
+      "headcount": 6,
+      "available_person_days": {
+        "2026-10": 42,
+        "2026-11": 54,
+        "2026-12": 60
+      }
+    },
+    {
+      "role": "UX",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 6,
+        "2026-11": 8,
+        "2026-12": 8
+      }
+    },
+    {
+      "role": "QA",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 8,
+        "2026-11": 10,
+        "2026-12": 10
+      }
+    },
+    {
+      "role": "DevOps",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 4,
+        "2026-11": 6,
+        "2026-12": 6
+      }
+    },
+    {
+      "role": "Administration",
+      "headcount": 1,
+      "available_person_days": {
+        "2026-10": 0,
+        "2026-11": 0,
+        "2026-12": 0
+      }
+    }
+  ],
+  "daily_rates_eur_ex_vat": [
+    {
+      "role": "Chef de projet",
+      "rate": 750
+    },
+    {
+      "role": "Développeur",
+      "rate": 650
+    },
+    {
+      "role": "UX",
+      "rate": 650
+    },
+    {
+      "role": "QA",
+      "rate": 550
+    },
+    {
+      "role": "DevOps",
+      "rate": 750
+    }
+  ],
+  "references": [
+    {
+      "id": "A-R01",
+      "client": "Client fictif Industrie-A",
+      "title": "Portail de suivi des commandes",
+      "period": "2024-02 à 2024-08",
+      "amount_eur_ex_vat": 145000,
+      "person_days": 210,
+      "stack": "Symfony, Vue.js, PostgreSQL",
+      "scope": "Comptes clients, catalogue, suivi de commandes, connexion à un ERP ; 450 comptes. Pas de haute disponibilité contractuelle."
+    },
+    {
+      "id": "A-R02",
+      "client": "Client fictif Association-A",
+      "title": "Extranet adhérents",
+      "period": "2025-01 à 2025-05",
+      "amount_eur_ex_vat": 88000,
+      "person_days": 130,
+      "stack": "Symfony, Vue.js",
+      "scope": "Adhésions, documents privés, rôles et exports ; 1 200 comptes. Aucun audit externe d’accessibilité livré."
+    },
+    {
+      "id": "A-R03",
+      "client": "Client fictif Services-A",
+      "title": "Maintenance portail métier",
+      "period": "2025-07 à 2026-06",
+      "amount_eur_ex_vat": 42000,
+      "person_days": 60,
+      "stack": "PHP, PostgreSQL",
+      "scope": "Correction et petites évolutions ; 38 tickets clos. Support uniquement en heures de service."
+    }
+  ],
+  "limits": "Aucune astreinte 24 h/24 ; aucune référence de migration Java ; aucune certification ISO 27001 détenue ; aucun audit externe d’accessibilité fourni."
+}
+
