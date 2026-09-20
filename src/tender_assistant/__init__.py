@@ -5,7 +5,7 @@ from deepagents.backends.utils import create_file_data
 from dotenv import load_dotenv
 
 from tender_assistant.agent import creer_agent
-from tender_assistant.tools.documents import lire_document, obtenir_dossier_entreprise
+from tender_assistant.tools.documents import lire_document
 
 
 def obtenir_tache(mode: str) -> tuple[str, str] | None:
@@ -77,6 +77,37 @@ def demander_mode() -> str:
         print("Choix invalide. Saisissez 1, 2 ou 3.")
 
 
+def choisir_dossier(racine: Path, titre: str) -> Path | None:
+    if not racine.is_dir():
+        print(f"Dossier introuvable : {racine}")
+        return None
+
+    dossiers = sorted(
+        (chemin for chemin in racine.iterdir() if chemin.is_dir()),
+        key=lambda chemin: chemin.name.lower(),
+    )
+
+    if not dossiers:
+        print(f"Aucun dossier disponible dans : {racine}")
+        return None
+
+    print(f"\n{titre} disponibles :")
+
+    for numero, dossier in enumerate(dossiers, start=1):
+        print(f"{numero}. {dossier.name}")
+
+    while True:
+        choix = input(f"\nVotre choix (1 à {len(dossiers)}) : ").strip()
+
+        if choix.isdigit():
+            index = int(choix) - 1
+
+            if 0 <= index < len(dossiers):
+                return dossiers[index]
+
+        print("Choix invalide. Réessayez.")
+
+
 def main() -> None:
 
     racine_projet = Path(__file__).resolve().parents[2]
@@ -97,11 +128,35 @@ def main() -> None:
 
     message_utilisateur, nom_fichier_sortie = tache
 
-    dossier = racine_projet / "data" / "synthetic" / "companies" / "pme_a" / "documents"
+    dossier_entreprise: Path | None = None
 
-    if not dossier.is_dir():
-        print(f"Dossier introuvable : {dossier}")
-        return
+    if mode in {"entreprise", "comparaison"}:
+        entreprise = choisir_dossier(
+            racine_projet / "data" / "synthetic" / "companies",
+            "Entreprises",
+        )
+
+        if entreprise is None:
+            return
+
+        dossier_entreprise = entreprise / "documents"
+
+        if not dossier_entreprise.is_dir():
+            print(f"Dossier de documents introuvable : {dossier_entreprise}")
+            return
+
+    dossier_consultation: Path | None = None
+
+    if mode in {"consultation", "comparaison"}:
+        consultation = choisir_dossier(
+            racine_projet / "data" / "synthetic" / "consultations",
+            "Consultations",
+        )
+
+        if consultation is None:
+            return
+
+        dossier_consultation = consultation
 
     chemin_prompt = Path(__file__).resolve().parent / "prompts" / "resume_entreprise.md"
     instruction_systeme = lire_document(chemin_prompt)
@@ -118,19 +173,18 @@ def main() -> None:
         "/AGENTS.md": create_file_data(manuel),
     }
 
-    dossier_entreprise = obtenir_dossier_entreprise()
+    if dossier_entreprise is not None:
+        for chemin in sorted(dossier_entreprise.rglob("*")):
+            if not chemin.is_file() or chemin.suffix.lower() != ".md":
+                continue
 
-    for chemin in sorted(dossier_entreprise.rglob("*")):
-        if not chemin.is_file() or chemin.suffix.lower() != ".md":
-            continue
+            if not chemin.resolve().is_relative_to(dossier_entreprise):
+                continue
 
-        if not chemin.resolve().is_relative_to(dossier_entreprise):
-            continue
+            chemin_relatif = chemin.relative_to(dossier_entreprise).as_posix()
+            chemin_virtuel = f"/entreprise/{chemin_relatif}"
 
-        chemin_relatif = chemin.relative_to(dossier_entreprise).as_posix()
-        chemin_virtuel = f"/entreprise/{chemin_relatif}"
-
-        fichiers_agent[chemin_virtuel] = create_file_data(lire_document(chemin))
+            fichiers_agent[chemin_virtuel] = create_file_data(lire_document(chemin))
 
     dossier_skills = Path(__file__).resolve().parent / "skills"
 
@@ -142,35 +196,19 @@ def main() -> None:
                 lire_document(chemin)
             )
 
-    valeur = os.getenv("DOSSIER_CONSULTATION")
+    if dossier_consultation is not None:
+        for chemin in sorted(dossier_consultation.rglob("*")):
+            if not chemin.is_file() or chemin.suffix.lower() != ".md":
+                continue
 
-    if not valeur:
-        print("La variable DOSSIER_CONSULTATION est absente.")
-        return
+            if not chemin.resolve().is_relative_to(dossier_consultation):
+                continue
 
-    dossier_consultation = Path(valeur)
+            chemin_relatif = chemin.relative_to(dossier_consultation).as_posix()
 
-    if not dossier_consultation.is_absolute():
-        dossier_consultation = racine_projet / dossier_consultation
-
-    dossier_consultation = dossier_consultation.resolve()
-
-    if not dossier_consultation.is_dir():
-        print(f"Dossier introuvable : {dossier_consultation}")
-        return
-
-    for chemin in sorted(dossier_consultation.rglob("*")):
-        if not chemin.is_file() or chemin.suffix.lower() != ".md":
-            continue
-
-        if not chemin.resolve().is_relative_to(dossier_consultation):
-            continue
-
-        chemin_relatif = chemin.relative_to(dossier_consultation).as_posix()
-
-        fichiers_agent[f"/consultation/{chemin_relatif}"] = create_file_data(
-            lire_document(chemin)
-        )
+            fichiers_agent[f"/consultation/{chemin_relatif}"] = create_file_data(
+                lire_document(chemin)
+            )
 
     resultat = agent.invoke(
         {
@@ -191,16 +229,10 @@ def main() -> None:
         for appel in getattr(message, "tool_calls", []):
             print(appel["name"], appel["args"])
 
-    # print("\nRésumé de la PME :")
-    # print(resume)
-
     # enregistrement du résumé dans un fichier de sortie
     dossier_sortie = racine_projet / "outputs"
     dossier_sortie.mkdir(exist_ok=True)
 
-    # fichier_resume = dossier_sortie / "analyse_consultation.md"
-    # fichier_resume = dossier_sortie / "resume_entreprise.md"
-    # fichier_resume = dossier_sortie / "comparaison_entreprise_consultation.md"
     fichier_resume = dossier_sortie / nom_fichier_sortie
 
     fichier_resume.write_text(resume, encoding="utf-8")
