@@ -158,7 +158,7 @@ def main() -> None:
 
         dossier_consultation = consultation
 
-    chemin_prompt = Path(__file__).resolve().parent / "prompts" / "resume_entreprise.md"
+    chemin_prompt = Path(__file__).resolve().parent / "prompts" / "systeme.md"
     instruction_systeme = lire_document(chemin_prompt)
 
     agent = creer_agent(
