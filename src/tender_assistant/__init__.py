@@ -8,7 +8,25 @@ from tender_assistant.agent import creer_agent
 from tender_assistant.tools.documents import lire_document
 
 
-def obtenir_tache(mode: str) -> tuple[str, str] | None:
+def obtenir_tache(mode: str, question: str | None = None) -> tuple[str, str] | None:
+    if mode == "question":
+        if not question:
+            return None
+
+    return (
+        (
+            "Réponds à la question de l’utilisateur. "
+            "Commence par lire intégralement le skill "
+            "/skills/question-documents/SKILL.md avec read_file, "
+            "puis applique sa méthode. "
+            "Consulte uniquement les documents nécessaires sous "
+            "/entreprise/ et /consultation/. "
+            "Si le skill est inaccessible, signale le problème "
+            "au lieu de répondre. "
+            f"Question : {question}"
+        ),
+        "reponse_question.md",
+    )
     taches = {
         "consultation": (
             (
@@ -59,22 +77,33 @@ def demander_mode() -> str:
         "1": "consultation",
         "2": "entreprise",
         "3": "comparaison",
+        "4": "question",
     }
 
     print("\nQue souhaitez-vous faire ?")
     print("1. Analyser une consultation")
     print("2. Synthétiser une entreprise")
     print("3. Comparer une entreprise à une consultation")
-
+    print("4. Poser une question sur une entreprise et une consultation")
     while True:
-        choix = input("\nVotre choix (1, 2 ou 3) : ").strip()
+        choix = input("\nVotre choix (1, 2, 3 ou 4) : ").strip()
 
         mode = choix_vers_mode.get(choix)
 
         if mode:
             return mode
 
-        print("Choix invalide. Saisissez 1, 2 ou 3.")
+        print("Choix invalide. Saisissez 1, 2, 3 ou 4.")
+
+
+def demander_question() -> str:
+    while True:
+        question = input("\nVotre question : ").strip()
+
+        if question:
+            return question
+
+        print("La question ne peut pas être vide.")
 
 
 def choisir_dossier(racine: Path, titre: str) -> Path | None:
@@ -120,7 +149,9 @@ def main() -> None:
     print("Clé OpenAI chargée.")
 
     mode = demander_mode()
-    tache = obtenir_tache(mode)
+
+    question = demander_question() if mode == "question" else None
+    tache = obtenir_tache(mode, question)
 
     if tache is None:
         print(f"Mode inconnu : {mode}")
@@ -130,7 +161,7 @@ def main() -> None:
 
     dossier_entreprise: Path | None = None
 
-    if mode in {"entreprise", "comparaison"}:
+    if mode in {"entreprise", "comparaison", "question"}:
         entreprise = choisir_dossier(
             racine_projet / "data" / "synthetic" / "companies",
             "Entreprises",
@@ -147,7 +178,7 @@ def main() -> None:
 
     dossier_consultation: Path | None = None
 
-    if mode in {"consultation", "comparaison"}:
+    if mode in {"consultation", "comparaison", "question"}:
         consultation = choisir_dossier(
             racine_projet / "data" / "synthetic" / "consultations",
             "Consultations",
