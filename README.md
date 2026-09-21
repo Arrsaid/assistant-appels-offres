@@ -43,6 +43,10 @@ Ce projet met progressivement en pratique l’ingénierie des agents IA : utilis
 5. Il analyse les documents et produit un rapport Markdown sourcé.
 6. Le rapport est enregistré dans le dossier `outputs/`.
 
+## Architecture
+
+Le fonctionnement détaillé et les principales décisions techniques sont présentés dans [la documentation d’architecture](docs/architecture.md).
+
 ## Prérequis
 
 - Python 3.14 ou une version compatible avec le projet
@@ -104,6 +108,24 @@ Des rapports produits avec les données fictives sont disponibles dans le dépô
 - [Comparaison entre une entreprise et une consultation](outputs/comparaison_entreprise_consultation.md)
 
 Ces fichiers illustrent le fonctionnement actuel de l’assistant. Leur contenu ne concerne aucune entreprise ni aucun acheteur réel.
+
+## Tests et évaluations
+
+Lancez l’ensemble des tests avec :
+
+```powershell
+uv run pytest -q
+```
+
+Les évaluations couvrent actuellement les trois parcours de l’application. Elles vérifient notamment :
+
+- la présence de faits essentiels ;
+- la citation des documents attendus ;
+- l’absence de consultation d’un corpus non autorisé ;
+- l’absence de décision automatique de répondre ;
+- la non-régression sur des erreurs factuelles identifiées.
+
+Ces contrôles sont déterministes et n’effectuent aucun appel au modèle.
 
 ## Limites actuelles
 
