@@ -1,1 +1,3 @@
 {"id":"analyse_portail_web","mode":"consultation","consultation":"portail_web"}
+{"id":"resume_pme_a","mode":"entreprise","entreprise":"pme_a"}
+{"id":"comparaison_pme_a_portail_web","mode":"comparaison","entreprise":"pme_a","consultation":"portail_web"}
