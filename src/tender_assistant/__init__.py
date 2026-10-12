@@ -5,7 +5,12 @@ from deepagents.backends.utils import create_file_data
 from dotenv import load_dotenv
 
 from tender_assistant.agent import creer_agent
-from tender_assistant.tools.documents import lire_document
+from tender_assistant.tools.documents import (
+    lire_document,
+    preparer_document_agent,
+)
+
+EXTENSIONS_DOCUMENTS = {".md", ".pdf"}
 
 
 def obtenir_tache(mode: str, question: str | None = None) -> tuple[str, str] | None:
@@ -13,20 +18,20 @@ def obtenir_tache(mode: str, question: str | None = None) -> tuple[str, str] | N
         if not question:
             return None
 
-    return (
-        (
-            "Réponds à la question de l’utilisateur. "
-            "Commence par lire intégralement le skill "
-            "/skills/question-documents/SKILL.md avec read_file, "
-            "puis applique sa méthode. "
-            "Consulte uniquement les documents nécessaires sous "
-            "/entreprise/ et /consultation/. "
-            "Si le skill est inaccessible, signale le problème "
-            "au lieu de répondre. "
-            f"Question : {question}"
-        ),
-        "reponse_question.md",
-    )
+        return (
+            (
+                "Réponds à la question de l’utilisateur. "
+                "Commence par lire intégralement le skill "
+                "/skills/question-documents/SKILL.md avec read_file, "
+                "puis applique sa méthode. "
+                "Consulte uniquement les documents nécessaires sous "
+                "/entreprise/ et /consultation/. "
+                "Si le skill est inaccessible, signale le problème "
+                "au lieu de répondre. "
+                f"Question : {question}"
+            ),
+            "reponse_question.md",
+        )
     taches = {
         "consultation": (
             (
@@ -206,16 +211,23 @@ def main() -> None:
 
     if dossier_entreprise is not None:
         for chemin in sorted(dossier_entreprise.rglob("*")):
-            if not chemin.is_file() or chemin.suffix.lower() != ".md":
+            if (
+                not chemin.is_file()
+                or chemin.suffix.lower() not in EXTENSIONS_DOCUMENTS
+            ):
                 continue
 
             if not chemin.resolve().is_relative_to(dossier_entreprise):
                 continue
 
             chemin_relatif = chemin.relative_to(dossier_entreprise).as_posix()
-            chemin_virtuel = f"/entreprise/{chemin_relatif}"
 
-            fichiers_agent[chemin_virtuel] = create_file_data(lire_document(chemin))
+            chemin_virtuel, contenu = preparer_document_agent(
+                chemin,
+                f"/entreprise/{chemin_relatif}",
+            )
+
+            fichiers_agent[chemin_virtuel] = create_file_data(contenu)
 
     dossier_skills = Path(__file__).resolve().parent / "skills"
 
@@ -229,7 +241,10 @@ def main() -> None:
 
     if dossier_consultation is not None:
         for chemin in sorted(dossier_consultation.rglob("*")):
-            if not chemin.is_file() or chemin.suffix.lower() != ".md":
+            if (
+                not chemin.is_file()
+                or chemin.suffix.lower() not in EXTENSIONS_DOCUMENTS
+            ):
                 continue
 
             if not chemin.resolve().is_relative_to(dossier_consultation):
@@ -237,9 +252,12 @@ def main() -> None:
 
             chemin_relatif = chemin.relative_to(dossier_consultation).as_posix()
 
-            fichiers_agent[f"/consultation/{chemin_relatif}"] = create_file_data(
-                lire_document(chemin)
+            chemin_virtuel, contenu = preparer_document_agent(
+                chemin,
+                f"/consultation/{chemin_relatif}",
             )
+
+            fichiers_agent[chemin_virtuel] = create_file_data(contenu)
 
     resultat = agent.invoke(
         {

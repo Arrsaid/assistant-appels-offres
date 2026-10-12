@@ -29,6 +29,9 @@ Cette décision reste humaine.
    et leurs sources.
 5. Relever les éléments documentés de l’entreprise avec leurs sources.
 6. Comparer chaque exigence avec les éléments réellement documentés.
+7. Pour les documents paginés, inclure le numéro de page dans les citations.
+8. Si une mention « Source originale » est présente, citer ce chemin
+  plutôt que celui du fichier d’extraction.
 
 ## Règles de comparaison
 
